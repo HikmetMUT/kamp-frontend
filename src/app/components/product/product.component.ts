@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { Product } from 'src/app/models/product';
 import { ProductService } from 'src/app/services/product.service';
 
@@ -14,23 +16,38 @@ export class ProductComponent implements OnInit {
 
 products:Product[] = [];
 dataLoaded=false;
+filterText:string="";
 
 
  
-  constructor(private productService:ProductService) { }
+  constructor(private productService:ProductService, private activatedRoute:ActivatedRoute, private toastrService:ToastrService) { }
 
   ngOnInit(): void {
+ this.activatedRoute.params.subscribe(params=>{
+  if(params["categoryId"]){
+    this.getProductsByCategory(params["categoryId"]);
+  }
+  else{
     this.getProducts();
+  }
+ })
   }
   getProducts(){
     this.productService.getProducts().subscribe(response=>{
       this.products=response.data
       this.dataLoaded=true;
     })
-      console.log();
   }
-
-
+  getProductsByCategory(categoryId:number){
+    this.productService.getProductsByCategory(categoryId).subscribe(response=>{
+      this.products=response.data
+      this.dataLoaded=true;
+    })
+  }
+ 
+  addToCart(product:Product){
+    this.toastrService.success("sepete Eklendi",product.productName)
+  }
 
 }
 
